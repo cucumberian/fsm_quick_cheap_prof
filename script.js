@@ -2,12 +2,9 @@
 
 class Jumper  {
     constructor() {
-        this.fast = document.querySelector(`input[name="fast"]`);
-        this.prof = document.querySelector(`input[name='proficient']`);
-        this.cheap = document.querySelector(`input[name="cheap"]`);
         this.buttons = document.querySelectorAll(`input[type="checkbox"]`);
+
         this.last_changed = null;
-        // console.log(this.buttons);
         this.state = "init"
         this.dispatch('to_input');
     }
@@ -39,12 +36,14 @@ class Jumper  {
     }
 
     input_change(event) {
-        // console.log(event.target.name);
         this.last_changed = event.target.name;
         this.dispatch('to_calc');
     }
 
     randrange(a, b) {
+        /**
+         * Возвращает случайное число из диапазона [a, b]
+         */
         if (a > b) {
             [a, b] = [b, a]
         }
@@ -79,14 +78,10 @@ class Jumper  {
         },
         "calc": {
             init() {
-                const values = [
-                    this.fast.checked,
-                    this.prof.checked,
-                    this.cheap.checked,
-                ];
-                // console.log(values);
+                const values = [];
+                this.buttons.forEach(el => values.push(el.checked));
                 let sum = values.filter(el => el).length;
-                if (sum < 3) {
+                if (sum < values.length) {
                     this.change_state('input');
                 }
                 else {
@@ -97,14 +92,18 @@ class Jumper  {
         },
         "too_many": {
             init() {
-                // console.log(this.last_changed);
+                /**
+                 * Сюда попадаем когда активированы все переключатели.
+                 * Снимаем один случайный (не последний нажатый) 
+                 * и идём обратно в состояние ожидания ввода.
+                 */
                 const values = [];
                 this.buttons.forEach(el => values.push(el.name));
-                // console.log(values);
                 let rand_index = this.randrange(0, values.length - 1);
                 while (values[rand_index] === this.last_changed) {
                     rand_index = this.randrange(0, values.length - 1);
                 }
+                // получаем элемент случайного переключателя и отключаем его
                 const elem = document.querySelector(`input[name="${values[rand_index]}"]`);
                 elem.checked = false;
 
