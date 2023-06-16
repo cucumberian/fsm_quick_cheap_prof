@@ -1,8 +1,9 @@
 'use strict';
 
 class Jumper  {
-    constructor() {
-        this.buttons = document.querySelectorAll(`input[type="checkbox"]`);
+    constructor(parent) {
+        this.inputs = parent.querySelectorAll(`input[type="checkbox"]`);
+        this.make_button = parent.querySelector(`button`);
 
         this.last_changed = null;
         this.state = "init"
@@ -56,7 +57,7 @@ class Jumper  {
         "init": {
             leave(){},
             to_input() {
-                this.buttons.forEach(element => {
+                this.inputs.forEach(element => {
                     element.addEventListener(
                         'change', 
                         event => {
@@ -64,6 +65,12 @@ class Jumper  {
                         }, 
                         {'once': false}
                     )
+                });
+
+                this.make_button.addEventListener('click', event => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    this.dispatch('to_make')
                 });
 
                 this.change_state('input');
@@ -75,11 +82,14 @@ class Jumper  {
             to_calc() {
                 this.change_state("calc");
             },
+            to_make() {
+                this.change_state('make');
+            },
         },
         "calc": {
             init() {
                 const values = [];
-                this.buttons.forEach(el => values.push(el.checked));
+                this.inputs.forEach(el => values.push(el.checked));
                 let sum = values.filter(el => el).length;
                 if (sum < values.length) {
                     this.change_state('input');
@@ -98,7 +108,7 @@ class Jumper  {
                  * и идём обратно в состояние ожидания ввода.
                  */
                 const values = [];
-                this.buttons.forEach(el => values.push(el.name));
+                this.inputs.forEach(el => values.push(el.name));
                 let rand_index = this.randrange(0, values.length - 1);
                 while (values[rand_index] === this.last_changed) {
                     rand_index = this.randrange(0, values.length - 1);
@@ -114,12 +124,28 @@ class Jumper  {
                 this.change_state('input');
             },
         },
-        "send": {
-            init() {},
+        "make": {
+            init() {
+                const values = [];
+                const a = Object.values(this.inputs)
+                    .filter(el => el.checked)
+                    .map(el => el.parentElement.innerText.toLocaleLowerCase().trim());
+                if (a.length) {
+                    console.log(`Сделал ${a.join(" и ")}`);
+                } 
+                else {
+                    console.log(`Сделал никак`);
+                }
+                this.dispatch('to_input');
+            },
             leave() {},
+            to_input() {
+                this.change_state("input");
+            },
         },
     };
 }
 
-const j = new Jumper();
+const form = document.forms[0];
+const j = new Jumper(form);
 

@@ -34,7 +34,7 @@ label > input {
     margin-right: 10px;
 }
 
-fieldset > button {
+form button {
     width: 100%;
     height: 30px;
 }
