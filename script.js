@@ -17,13 +17,13 @@ class Jumper  {
             action.call(this, args);
         }
         else {
-            console.warn(`no route "${action_name}" from "${this.state}"`);
+            // console.warn(`no route "${action_name}" from "${this.state}"`);
         }
     }
 
     change_state(new_state) {
         if (this.state === new_state) {
-            console.warn(`restricted change state "${this.state}" => "${new_state}"`);
+            // console.warn(`restricted change state "${this.state}" => "${new_state}"`);
             return;
         }
         if (new_state in this.transitions) {
@@ -32,7 +32,7 @@ class Jumper  {
             this.dispatch('init');
         }
         else {
-            console.error(`no such state "${new_state}"`);
+            // console.warn(`no such state "${new_state}"`);
         }
     }
 
@@ -115,9 +115,12 @@ class Jumper  {
                 }
                 // получаем элемент случайного переключателя и отключаем его
                 const elem = document.querySelector(`input[name="${values[rand_index]}"]`);
-                elem.checked = false;
-
-                this.dispatch('to_input');
+                
+                setTimeout( () => {
+                    elem.checked = false;
+                    this.dispatch('to_input');
+                }, this.randrange(200, 800));
+                
             },
             leave() {},
             to_input() {
